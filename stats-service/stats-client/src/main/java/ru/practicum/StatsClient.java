@@ -21,8 +21,8 @@ public class StatsClient {
     private final String url;
 
     @Autowired
-    public StatsClient(@Value("http://localhost:9009") String serverUrl) {
-        log.info("Stats server url: " + serverUrl);
+    public StatsClient(@Value("${stats-server.url}") String serverUrl) {
+        log.info("url: " + serverUrl);
         restClient = RestClient.builder()
                 .baseUrl(serverUrl)
                 .build();
@@ -47,6 +47,7 @@ public class StatsClient {
 
         return restClient.get()
                 .uri(uriBuilder -> {
+                    log.info("url before /stats: " + url);
                     uriBuilder.queryParam("start", formattedStart);
                     uriBuilder.queryParam("end", formattedEnd);
 
