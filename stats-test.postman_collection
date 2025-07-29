@@ -1,0 +1,154 @@
+{
+  "info": {
+    "_postman_id": "4dfe25f0-b9f2-4518-9e4c-c70661770a39",
+    "name": "stats-test",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "43804471",
+    "_collection_link": "https://ruslan-3150878.postman.co/workspace/Ruslan's-Workspace~76aa9c86-60be-41db-85d3-a7ca3ab9a250/collection/43804471-4dfe25f0-b9f2-4518-9e4c-c70661770a39?action=share&source=collection_link&creator=43804471"
+  },
+  "item": [
+    {
+      "name": "Create hit",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "let serverResponse = pm.response;",
+              "",
+              "pm.test(\"Ответ должен содержать код статуса 201 и данные в формате json\", function() {",
+              "    pm.response.to.be.success; // код ответа должен быть равен 200 OK",
+              "    pm.response.to.be.withBody; // ответ должен содержать тело",
+              "    pm.response.to.be.json; // и тело ответа должно быть в формате JSON",
+              "});",
+              "",
+              "pm.test(\"test id field\", function() {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('id');",
+              "});",
+              "",
+              "pm.test(\"test uri field\", function() {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('uri');",
+              "});",
+              "",
+              "pm.test(\"test app field\", function() {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('app');",
+              "});",
+              "",
+              "pm.test(\"test ip field\", function() {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('ip');",
+              "});",
+              "",
+              "pm.test(\"test timestamp field\", function() {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('timestamp');",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "packages": {},
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"app\": \"ewm-main-service\",\n    \"uri\": \"/event/1\",\n    \"ip\": \"192.163.0.1\",\n    \"timestamp\": \"2025-07-28 11:00:00\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "localhost:9090/hit",
+          "host": [
+            "localhost"
+          ],
+          "port": "9090",
+          "path": [
+            "hit"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get stats",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "let serverResponse = pm.response.json()",
+              "",
+              "pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", function() {",
+              "    pm.response.to.be.ok;",
+              "    pm.response.to.be.withBody;",
+              "    pm.response.to.be.json;",
+              "});",
+              "",
+              "pm.test(\"Тело ответа должно быть массивом с длиной 1\", function() {",
+              "    pm.expect(serverResponse).is.an('array');",
+              "    pm.expect(serverResponse.length).to.be.gte(1);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"app\": \"ewm-main-service\",\n    \"uri\": \"/event/1\",\n    \"ip\": \"192.163.0.1\",\n    \"timestamp\": \"2025-07-28 11:00:00\"\n}"
+        },
+        "url": {
+          "raw": "localhost:9090/stats?start=2025-07-28 10:30:00&end=2030-07-29 10:00:00&uris=/event/1&unique=false",
+          "host": [
+            "localhost"
+          ],
+          "port": "9090",
+          "path": [
+            "stats"
+          ],
+          "query": [
+            {
+              "key": "start",
+              "value": "2025-07-28 10:30:00"
+            },
+            {
+              "key": "end",
+              "value": "2030-07-29 10:00:00"
+            },
+            {
+              "key": "uris",
+              "value": "/event/1"
+            },
+            {
+              "key": "unique",
+              "value": "false"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
