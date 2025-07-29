@@ -1,26 +1,21 @@
-networks:
-  backend:
-    driver: bridge
-
 services:
+  # Сервис статистики
   stats-db:
     image: postgres:16.1
     container_name: stats-db
+    environment:
+      POSTGRES_DB: stats
+      POSTGRES_USER: stats
+      POSTGRES_PASSWORD: stats
     ports:
       - "5432:5432"
     volumes:
-      - ./volumes/postgres/stats-data:/var/lib/postgresql/data/
-    environment:
-      POSTGRES_DB: "stats"
-      POSTGRES_USER: "dbuser"
-      POSTGRES_PASSWORD: "12345"
+      - stats-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U dbuser -d stats"]
-      timeout: 5s
+      test: ["CMD-SHELL", "pg_isready -U stats -d stats"]
       interval: 5s
-      retries: 10
-    networks:
-      - backend
+      timeout: 5s
+      retries: 5
 
   stats-server:
     build:
@@ -29,49 +24,49 @@ services:
     container_name: stats-server
     ports:
       - "9090:9090"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:5432/stats
+      SPRING_DATASOURCE_USERNAME: stats
+      SPRING_DATASOURCE_PASSWORD: stats
+      SPRING_JPA_HIBERNATE_DDL-AUTO: update
     depends_on:
       stats-db:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9090/actuator/health || exit 1"]
-      timeout: 10s
-      interval: 30s
-      retries: 3
-    environment:
-      JAVA_OPTS: >
-        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
-        -Duser.timezone=Europe/Moscow
-      SPRING_DATASOURCE_URL: "jdbc:postgresql://stats-db:5432/stats?connectTimeout=5000&socketTimeout=30000"
-      SPRING_DATASOURCE_USERNAME: "dbuser"
-      SPRING_DATASOURCE_PASSWORD: "12345"
-    restart: on-failure
-    networks:
-      - backend
 
+  # Основной сервис
   ewm-db:
     image: postgres:16.1
     container_name: ewm-db
     environment:
-      POSTGRES_DB: "main"
-      POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: ewm
+      POSTGRES_USER: ewm
+      POSTGRES_PASSWORD: ewm
+    ports:
+      - "5433:5432"
     volumes:
-      - ./volumes/postgres/main-data:/var/lib/postgresql/data
-    networks:
-      - backend
+      - ewm-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ewm -d ewm"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   ewm-service:
-    build: ./ewm-service
+    build:
+      context: ./ewm-service
+    container_name: ewm-service
     ports:
       - "8080:8080"
-    depends_on:
-      stats-server:
-        condition: service_healthy
     environment:
-      STATS_SERVICE_URL: "http://stats-server:8989"
-    networks:
-      - backend
+      SPRING_DATASOURCE_URL: jdbc:postgresql://ewm-db:5432/ewm
+      SPRING_DATASOURCE_USERNAME: ewm
+      SPRING_DATASOURCE_PASSWORD: ewm
+      SPRING_JPA_HIBERNATE_DDL-AUTO: update
+      STATS_SERVER_URL: http://stats-server:9090
+    depends_on:
+      - ewm-db
+      - stats-server
 
 volumes:
   stats-data:
-  main-data:
+  ewm-data:
