@@ -12,7 +12,7 @@ services:
     volumes:
       - stats-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U stats -d stats"]
+      test: [ "CMD-SHELL", "pg_isready -U stats -d stats" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -42,11 +42,11 @@ services:
       POSTGRES_USER: ewm
       POSTGRES_PASSWORD: ewm
     ports:
-      - "5433:5432"
+      - "1234:5432"
     volumes:
       - ewm-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ewm -d ewm"]
+      test: [ "CMD-SHELL", "pg_isready -U ewm -d ewm" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -58,7 +58,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://ewm-db:5432/ewm
+      SPRING_DATASOURCE_URL: jdbc:postgresql://ewm-db:5432/ewm  # Внутри docker сети используем стандартный порт
       SPRING_DATASOURCE_USERNAME: ewm
       SPRING_DATASOURCE_PASSWORD: ewm
       SPRING_JPA_HIBERNATE_DDL-AUTO: update

@@ -1,11 +1,11 @@
 spring:
   application:
-    name: stats-server
+    name: ewm-service
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/stats
-    username: stats
-    password: stats
+    url: jdbc:postgresql://localhost:1234/ewm
+    username: ewm
+    password: ewm
     driver-class-name: org.postgresql.Driver
     hikari:
       connection-timeout: 30000
@@ -26,7 +26,10 @@ spring:
     baseline-on-migrate: true
 
 server:
-  port: 9091
+  port: 8080
+
+stats-client:
+  url: http://localhost:9090
 
 logging:
   level:
@@ -37,3 +40,6 @@ logging:
     org.hibernate.sql: DEBUG
     org.hibernate.type: TRACE
     org.hibernate.orm.jdbc.bind: TRACE
+    org.flywaydb: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
