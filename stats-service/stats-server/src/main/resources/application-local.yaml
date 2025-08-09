@@ -5,8 +5,8 @@ spring:
 
   datasource:
     url: jdbc:h2:mem:stats_tdb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
-    username: ewm
-    password: ewm
+    username: sa
+    password:
     driver-class-name: org.h2.Driver
 
   jpa:
