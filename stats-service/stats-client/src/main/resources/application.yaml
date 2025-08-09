@@ -1,2 +1,2 @@
-stats-client:
+stats-server:
   url: "http://localhost:9090"

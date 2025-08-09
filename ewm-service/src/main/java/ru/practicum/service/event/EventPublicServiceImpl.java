@@ -106,9 +106,15 @@ public class EventPublicServiceImpl implements EventPublicService {
         // Фиксируем просмотр
         statsClient.recordEventView(request);
 
+        try {
+            Thread.sleep(300);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
         // Получаем статистику
-        Long views = statsClient.getEventsViews(List.of(id)).getOrDefault(id, 0L);
         Long confirmedRequests = requestRepository.countRequestsByEventAndStatus(id, RequestStatus.CONFIRMED);
+        Long views = statsClient.getEventsViews(List.of(id)).getOrDefault(id, 0L);
 
         return EventMapper.toEventFullDto(event, views, confirmedRequests);
     }
