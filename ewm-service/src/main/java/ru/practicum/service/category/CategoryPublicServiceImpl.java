@@ -7,7 +7,6 @@ import ru.practicum.entity.category.Category;
 import ru.practicum.repository.CategoryRepository;
 import ru.practicum.dto.category.CategoryDto;
 import ru.practicum.exceptions.NotFoundException;
-import ru.practicum.repository.EventRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
