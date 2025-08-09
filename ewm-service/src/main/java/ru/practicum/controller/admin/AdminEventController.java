@@ -18,7 +18,7 @@ import java.util.List;
 @RequestMapping("/admin/events")
 @RequiredArgsConstructor
 public class AdminEventController {
-    private final EventAdminService eventService;
+    private final EventAdminService eventAdminService;
 
     @GetMapping
     public List<EventFullDto> getEvents(
@@ -31,7 +31,7 @@ public class AdminEventController {
             @RequestParam(defaultValue = "10") int size,
             HttpServletRequest request
     ) {
-        return eventService.searchEvents(users, states, categories, rangeStart, rangeEnd, from, size, request);
+        return eventAdminService.searchEvents(users, states, categories, rangeStart, rangeEnd, from, size, request);
     }
 
     @PatchMapping("/{eventId}")
@@ -39,6 +39,6 @@ public class AdminEventController {
             @PathVariable Long eventId,
             @RequestBody @Valid UpdateEventAdminRequest updateRequest) {
 
-        return eventService.updateEventByAdmin(eventId, updateRequest);
+        return eventAdminService.updateEventByAdmin(eventId, updateRequest);
     }
 }

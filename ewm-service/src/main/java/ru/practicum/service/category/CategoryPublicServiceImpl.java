@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class CategoryPublicServiceImpl implements CategoryPublicService {
     private final CategoryRepository categoryRepository;
-    private final EventRepository eventRepository;
 
     @Override
     public List<CategoryDto> getAllCategories(int from, int size) {

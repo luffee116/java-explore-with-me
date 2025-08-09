@@ -1,2 +1,2 @@
 stats-server:
-  url: "http://localhost:9091"
+  url: "http://localhost:9090"

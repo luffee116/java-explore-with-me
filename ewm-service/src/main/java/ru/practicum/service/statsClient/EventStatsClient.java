@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 public class EventStatsClient {
     private final StatsClient statsClient;
     private final String appName = "ewm-main-service";
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public void recordEventView(HttpServletRequest request) {
         HitDto hitDto = HitDto.builder()
