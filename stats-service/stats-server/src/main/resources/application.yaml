@@ -3,22 +3,16 @@ spring:
     name: stats-server
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/stats
+    url: jdbc:postgresql://stats-db:5432/stats
     username: stats
     password: stats
     driver-class-name: org.postgresql.Driver
-    hikari:
-      connection-timeout: 30000
-      maximum-pool-size: 10
 
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-    properties:
-      hibernate:
-        show_sql: true
-        format_sql: true
+    show-sql: true
 
   flyway:
     enabled: true
@@ -26,7 +20,7 @@ spring:
     baseline-on-migrate: true
 
 server:
-  port: 9091
+  port: 9090
 
 logging:
   level:
