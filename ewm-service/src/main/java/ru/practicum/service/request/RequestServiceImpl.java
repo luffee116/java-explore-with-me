@@ -20,6 +20,7 @@ import ru.practicum.repository.ParticipationRequestRepository;
 import ru.practicum.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -141,7 +142,7 @@ public class RequestServiceImpl implements RequestService {
             ParticipationRequest request = ParticipationRequest.builder()
                     .event(event)
                     .requester(requester)
-                    .created(LocalDateTime.now())
+                    .created(LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS))
                     .requestStatus(RequestStatus.CONFIRMED)
                     .build();
             return toDto(requestRepository.save(request));
@@ -150,7 +151,7 @@ public class RequestServiceImpl implements RequestService {
         ParticipationRequest request = ParticipationRequest.builder()
                 .event(event)
                 .requester(requester)
-                .created(LocalDateTime.now())
+                .created(LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS))
                 .requestStatus(event.getRequestModeration() ?
                         RequestStatus.PENDING :
                         RequestStatus.CONFIRMED)
