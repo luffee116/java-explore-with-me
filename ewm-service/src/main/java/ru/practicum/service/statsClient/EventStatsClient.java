@@ -33,18 +33,6 @@ public class EventStatsClient {
         log.debug("Stats service response: {}", response.getStatusCode());
     }
 
-    public void recordEventView(HttpServletRequest request, Long eventId) {
-        HitDto hitDto = HitDto.builder()
-                .app(appName)
-                .uri("/events/" + eventId)
-                .ip(request.getRemoteAddr())
-                .timestamp(LocalDateTime.now())
-                .build();
-
-        ResponseEntity<Object> response = statsClient.saveHit(hitDto);
-        log.debug("Stats service response: {}", response.getStatusCode());
-    }
-
     public Map<Long, Long> getEventsViews(List<Long> eventIds) {
         LocalDateTime start = LocalDateTime.now().minusYears(1);
         LocalDateTime end = LocalDateTime.now();

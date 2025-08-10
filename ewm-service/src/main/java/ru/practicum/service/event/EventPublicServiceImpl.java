@@ -74,7 +74,7 @@ public class EventPublicServiceImpl implements EventPublicService {
 
         List<Event> events = eventsPage.getContent();
 
-        events.forEach(event -> statsClient.recordEventView(request, event.getId()));
+        statsClient.recordEventView(request);
 
         Map<Long, Long> views = statsClient.getEventsViews(
                 events.stream().map(Event::getId).collect(Collectors.toList())

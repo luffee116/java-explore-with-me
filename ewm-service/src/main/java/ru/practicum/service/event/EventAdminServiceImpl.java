@@ -61,11 +61,7 @@ public class EventAdminServiceImpl implements EventAdminService {
 
         Map<Long, Long> confirmedRequests = getConfirmedRequestsCount(events.getContent());
 
-        events.forEach(
-                event -> {
-                    statsClient.recordEventView(request, event.getId());
-                }
-        );
+        statsClient.recordEventView(request);
 
         Map<Long, Long> viewsMap = statsClient.getEventsViews(
                 events.getContent().stream()
