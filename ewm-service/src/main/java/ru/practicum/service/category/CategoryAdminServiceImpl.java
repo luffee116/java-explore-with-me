@@ -9,6 +9,7 @@ import ru.practicum.entity.category.Category;
 import ru.practicum.exceptions.BadRequestException;
 import ru.practicum.exceptions.ConflictException;
 import ru.practicum.exceptions.NotFoundException;
+import ru.practicum.mappers.CategoryMapper;
 import ru.practicum.repository.CategoryRepository;
 import ru.practicum.repository.EventRepository;
 
@@ -29,7 +30,7 @@ public class CategoryAdminServiceImpl implements CategoryAdminService {
         }
 
         Category savedCategory = categoryRepository.save(Category.builder().name(newCategory.getName()).build());
-        return toDto(savedCategory);
+        return CategoryMapper.toDto(savedCategory);
     }
 
     @Override
@@ -59,10 +60,6 @@ public class CategoryAdminServiceImpl implements CategoryAdminService {
 
         category.setName(categoryDto.getName());
         Category savedCategory = categoryRepository.save(category);
-        return toDto(savedCategory);
-    }
-
-    private CategoryDto toDto(Category category) {
-        return new CategoryDto(category.getId(), category.getName());
+        return CategoryMapper.toDto(savedCategory);
     }
 }

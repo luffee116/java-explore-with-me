@@ -47,10 +47,9 @@ public class EventPrivateServiceImpl implements EventPrivateService {
 
     @Override
     public EventFullDto createEvent(Long userId, NewEventDto newEventDto) {
-        User initiator = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User with id " + userId + "not found"));
-        Category category = categoryRepository.findById(newEventDto.getCategory())
-                .orElseThrow(() -> new NotFoundException("Category with id " + newEventDto.getCategory() + "not found"));
+        User initiator = findUserById(userId);
+
+        Category category = findCategoryById(newEventDto.getCategory());
 
         Location location = new Location();
         location.setLat(newEventDto.getLocation().getLat());
@@ -65,7 +64,7 @@ public class EventPrivateServiceImpl implements EventPrivateService {
 
     @Override
     public EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequest updateRequest) {
-        userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User with id " + userId + "not found"));
+        findUserById(userId);
 
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId);
 
@@ -148,5 +147,15 @@ public class EventPrivateServiceImpl implements EventPrivateService {
         }
         log.info("Get event with id {}", event.getId());
         return EventMapper.toEventFullDto(event);
+    }
+
+    private User findUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User with id " + userId + "not found"));
+    }
+
+    private Category findCategoryById(Long categoryId) {
+        return categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new NotFoundException("Category with id " + categoryId + "not found"));
     }
 }

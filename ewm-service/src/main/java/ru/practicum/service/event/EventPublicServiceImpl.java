@@ -53,14 +53,7 @@ public class EventPublicServiceImpl implements EventPublicService {
         LocalDateTime start = (rangeStart != null) ? rangeStart : LocalDateTime.now();
         LocalDateTime end = (rangeEnd != null) ? rangeEnd : LocalDateTime.now().plusYears(10);
 
-        PageRequest pageRequest;
-        if ("EVENT_DATE".equalsIgnoreCase(sort)) {
-            pageRequest = PageRequest.of(from / size, size, Sort.by(Sort.Direction.ASC, "eventDate"));
-        } else if ("VIEWS".equalsIgnoreCase(sort)) {
-            pageRequest = PageRequest.of(from / size, size);
-        } else {
-            pageRequest = PageRequest.of(from / size, size);
-        }
+        PageRequest pageRequest = switchPageRequest(sort, from, size);
 
         Page<Event> eventsPage = eventRepository.findPublicEvents(
                 (text == null || text.isBlank()) ? null : text,
@@ -122,5 +115,15 @@ public class EventPublicServiceImpl implements EventPublicService {
     private Map<Long, Long> getConfirmedRequestsCount(List<Event> events) {
         List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
         return requestRepository.countConfirmedRequestsByEventIds(eventIds, RequestStatus.CONFIRMED);
+    }
+
+    private PageRequest switchPageRequest(String sort, int from, int size) {
+        if ("EVENT_DATE".equalsIgnoreCase(sort)) {
+            return PageRequest.of(from / size, size, Sort.by(Sort.Direction.ASC, "eventDate"));
+        } else if ("VIEWS".equalsIgnoreCase(sort)) {
+            return PageRequest.of(from / size, size);
+        } else {
+            return PageRequest.of(from / size, size);
+        }
     }
 }

@@ -36,7 +36,8 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public List<ParticipationRequestDto> getEventRequests(Long userId, Long eventId) {
         if (eventRepository.findByIdAndInitiatorId(eventId, userId) == null) {
-            throw new NotFoundException("Event not found or user is not initiator");
+            throw new NotFoundException("Event with id " + eventId + " not found or user with id"
+                    + userId + " is not initiator");
         }
 
         return requestRepository.findAllByEventId(eventId).stream()
@@ -49,8 +50,7 @@ public class RequestServiceImpl implements RequestService {
     public EventRequestStatusUpdateResult updateRequestStatus(
             Long userId, Long eventId, EventRequestStatusUpdateRequest updateRequest) {
 
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Event not found"));
+        Event event = findEventById(eventId);
 
         if (!event.getInitiator().getId().equals(userId)) {
             throw new ForbiddenException("User is not event initiator");
@@ -74,6 +74,7 @@ public class RequestServiceImpl implements RequestService {
             throw new NotFoundException("Some requests not found");
         }
 
+        List<ParticipationRequest> updatedRequests = new ArrayList<>();
         List<ParticipationRequestDto> confirmed = new ArrayList<>();
         List<ParticipationRequestDto> rejected = new ArrayList<>();
 
@@ -92,20 +93,24 @@ public class RequestServiceImpl implements RequestService {
 
             if (updateRequest.getStatus() == StatusAction.CONFIRMED && availableSlots > 0) {
                 request.setRequestStatus(RequestStatus.CONFIRMED);
-                confirmed.add(toDto(requestRepository.save(request)));
+                confirmed.add(toDto(request));
+                availableSlots--;
             } else {
                 request.setRequestStatus(RequestStatus.REJECTED);
-                rejected.add(toDto(requestRepository.save(request)));
+                rejected.add(toDto(request));
             }
+            updatedRequests.add(request);
         }
+
+        // Сохраняем все изменения одним запросом
+        requestRepository.saveAll(updatedRequests);
 
         return new EventRequestStatusUpdateResult(confirmed, rejected);
     }
 
     @Override
     public List<ParticipationRequestDto> getUserRequests(Long userId) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
+        findUserById(userId);
 
         return requestRepository.findAllByRequesterId(userId).stream()
                 .map(this::toDto)
@@ -114,14 +119,12 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public ParticipationRequestDto createRequest(Long userId, Long eventId) {
-        User requester = userRepository.findById(userId).orElseThrow(
-                () -> new NotFoundException("User with id " + userId + " not found"));
+        User requester = findUserById(userId);
 
-        Event event = eventRepository.findById(eventId).orElseThrow(
-                () -> new NotFoundException("Event with id " + eventId + " not found"));
+        Event event = findEventById(eventId);
 
         if (requestRepository.existsByEventIdAndRequesterId(eventId, userId)) {
-            throw new ConflictException("Request already exists");
+            throw new ConflictException("Request already exists with eventId " + eventId + " and userId " + userId);
         }
         if (event.getInitiator().getId().equals(userId)) {
             throw new ConflictException("Initiator can't participate in own event");
@@ -176,6 +179,15 @@ public class RequestServiceImpl implements RequestService {
         return toDto(requestRepository.save(request));
     }
 
+    private User findUserById(Long userId) {
+        return userRepository.findById(userId).orElseThrow(
+                () -> new NotFoundException("User with id " + userId + " not found"));
+    }
+
+    private Event findEventById(Long eventId) {
+        return eventRepository.findById(eventId).orElseThrow(
+                () -> new NotFoundException("Event with id " + eventId + " not found"));
+    }
 
     private ParticipationRequestDto toDto(ParticipationRequest request) {
         return ParticipationRequestDto.builder()
