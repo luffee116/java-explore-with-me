@@ -31,8 +31,14 @@ public class StatsServiceImpl implements StatsService {
     @Override
     public List<StatsDto> getStats(String start, String end, List<String> uris, boolean unique) {
         log.info("Getting statistics from: {}, to {} (URIs: {}, unique: {})", start, end, uris, unique);
+
+        if (start.isBlank() || end.isBlank()) {
+            throw new ValidationException("Start and end must be provided");
+        }
+
         LocalDateTime startTime = parseDate(start);
         LocalDateTime endTime = parseDate(end);
+
 
         if (startTime.isAfter(endTime)) {
             throw new ValidationException("Start date cannot be after end date");

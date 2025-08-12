@@ -23,10 +23,10 @@ public class StatsClient {
     @Autowired
     public StatsClient(@Value("${stats-server.url}") String serverUrl) {
         log.info("url: " + serverUrl);
-        restClient = RestClient.builder()
+        this.restClient = RestClient.builder()
                 .baseUrl(serverUrl)
                 .build();
-        url = serverUrl;
+        this.url = serverUrl;
     }
 
     public ResponseEntity<Object> saveHit(HitDto hitDto) {
@@ -42,17 +42,18 @@ public class StatsClient {
                                            LocalDateTime end,
                                            List<String> uris,
                                            Boolean unique) {
-        String formattedStart = start.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        String formattedEnd = end.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        String formattedStart = start.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        String formattedEnd = end.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
         return restClient.get()
                 .uri(uriBuilder -> {
                     log.info("url before /stats: " + url);
+                    uriBuilder.path("/stats");
                     uriBuilder.queryParam("start", formattedStart);
                     uriBuilder.queryParam("end", formattedEnd);
 
                     if (uris != null && !uris.isEmpty()) {
-                        uriBuilder.queryParam("uris", String.join(","), uris);
+                        uriBuilder.queryParam("uris", uris.toArray());
                     }
                     return uriBuilder.queryParam("unique", unique).build();
                 })
