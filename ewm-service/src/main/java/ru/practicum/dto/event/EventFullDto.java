@@ -32,4 +32,5 @@ public class EventFullDto {
     private EventState state;
     private Long views;
     private Long confirmedRequests;
+    private Long comments;
 }

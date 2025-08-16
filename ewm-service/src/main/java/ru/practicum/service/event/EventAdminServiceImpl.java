@@ -13,6 +13,7 @@ import ru.practicum.exceptions.ConflictException;
 import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.mappers.EventMapper;
 import ru.practicum.repository.CategoryRepository;
+import ru.practicum.repository.CommentRepository;
 import ru.practicum.repository.EventRepository;
 import ru.practicum.repository.ParticipationRequestRepository;
 import ru.practicum.service.statsClient.EventStatsClient;
@@ -30,6 +31,7 @@ public class EventAdminServiceImpl implements EventAdminService {
     private final ParticipationRequestRepository requestRepository;
     private final EventStatsClient statsClient;
     private final CategoryRepository categoryRepository;
+    private final CommentRepository commentRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -60,6 +62,8 @@ public class EventAdminServiceImpl implements EventAdminService {
                 page);
 
         Map<Long, Long> confirmedRequests = getConfirmedRequestsCount(events.getContent());
+        Map<Long, Long> comments = commentRepository.findAllByEventIdAndModerated(
+                events.stream().map(Event::getId).collect(Collectors.toList()), true);
 
         statsClient.recordEventView(request);
 
@@ -71,7 +75,8 @@ public class EventAdminServiceImpl implements EventAdminService {
         return events.map(event -> EventMapper.toEventFullDto(
                 event,
                 viewsMap.getOrDefault(event.getId(), 0L),
-                confirmedRequests.getOrDefault(event.getId(), 0L))
+                confirmedRequests.getOrDefault(event.getId(), 0L),
+                comments.getOrDefault(event.getId(), 0L))
         ).getContent();
 
     }
