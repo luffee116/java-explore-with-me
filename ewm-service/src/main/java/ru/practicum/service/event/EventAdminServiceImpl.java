@@ -62,8 +62,7 @@ public class EventAdminServiceImpl implements EventAdminService {
                 page);
 
         Map<Long, Long> confirmedRequests = getConfirmedRequestsCount(events.getContent());
-        Map<Long, Long> comments = commentRepository.findAllByEventIdAndModerated(
-                events.stream().map(Event::getId).collect(Collectors.toList()), true);
+        Map<Long, Long> comments = getCommentsCount(events.getContent());
 
         statsClient.recordEventView(request);
 
@@ -157,6 +156,26 @@ public class EventAdminServiceImpl implements EventAdminService {
         List<Object[]> results = requestRepository.countByEventIdInAndStatus(
                 eventIds,
                 RequestStatus.CONFIRMED);
+
+        return results.stream()
+                .collect(Collectors.toMap(
+                        result -> (Long) result[0],  // eventId
+                        result -> (Long) result[1]   // count
+                ));
+    }
+
+    private Map<Long, Long> getCommentsCount(List<Event> events) {
+        if (events.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        List<Long> eventIds = events.stream()
+                .map(Event::getId)
+                .collect(Collectors.toList());
+
+        List<Object[]> results = commentRepository.countCommentsByEventIdAndModerated(
+                eventIds,
+                true);
 
         return results.stream()
                 .collect(Collectors.toMap(

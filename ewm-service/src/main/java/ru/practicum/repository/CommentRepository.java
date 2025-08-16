@@ -41,16 +41,32 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findPending(Pageable pageable);
 
     @Query("""
-            SELECT c.id, COUNT(c) FROM Comment c
-            WHERE c.event.id = :eventId
-            AND c.moderated = :moderated
+            SELECT c.event.id, COUNT(c)
+            FROM Comment c
+            WHERE c.event.id IN :eventIds
+              AND c.moderated = :moderated
+            GROUP BY c.event.id
             """)
-    Map<Long, Long> findAllByEventIdAndModerated(List<Long> eventId, boolean moderated);
+    List<Object[]> countCommentsByEventIdAndModerated(@Param("eventIds") List<Long> eventIds,
+                                                      @Param("moderated") boolean moderated);
 
     @Query("""
-                    SELECT COUNT(c) FROM Comment c
-                    WHERE c.event.id = :eventId
-                    AND c.moderated = :moderated
+            SELECT c.event.id, COUNT(c)
+            FROM Comment c
+            WHERE c.event.id IN :eventIds
+              AND c.moderated = :moderated
+            GROUP BY c.event.id
             """)
-    Long findByEventIdAndModerated(Long eventId, boolean moderated);
+    Map<Long, Long> countCommentsByModeratedAndEventId(@Param("eventIds") List<Long> eventIds,
+                                                      @Param("moderated") boolean moderated);
+
+    @Query("""
+            SELECT COUNT(c)
+            FROM Comment c
+            WHERE c.event.id = :eventId
+              AND c.moderated = :moderated
+            GROUP BY c.event.id
+            """)
+    Long findCommentCountByEventIdAndModerated(@Param("eventId") Long eventId,
+                                               @Param("moderated") boolean moderated);
 }
