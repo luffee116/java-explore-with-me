@@ -15,6 +15,7 @@ import ru.practicum.entity.request.RequestStatus;
 import ru.practicum.exceptions.BadRequestException;
 import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.mappers.EventMapper;
+import ru.practicum.repository.CommentRepository;
 import ru.practicum.repository.EventRepository;
 import ru.practicum.repository.ParticipationRequestRepository;
 import ru.practicum.service.statsClient.EventStatsClient;
@@ -31,6 +32,7 @@ public class EventPublicServiceImpl implements EventPublicService {
     private final EventRepository eventRepository;
     private final EventStatsClient statsClient;
     private final ParticipationRequestRepository requestRepository;
+    private final CommentRepository commentRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -113,6 +115,11 @@ public class EventPublicServiceImpl implements EventPublicService {
     }
 
     private Map<Long, Long> getConfirmedRequestsCount(List<Event> events) {
+        List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
+        return requestRepository.countConfirmedRequestsByEventIds(eventIds, RequestStatus.CONFIRMED);
+    }
+
+    private Map<Long, Long> getConfirmedCommentsCount(List<Event> events) {
         List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
         return requestRepository.countConfirmedRequestsByEventIds(eventIds, RequestStatus.CONFIRMED);
     }

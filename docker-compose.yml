@@ -23,7 +23,7 @@ services:
       dockerfile: Dockerfile
     container_name: stats-server
     ports:
-      - "9090:9090" #9091
+      - "9091:9090" #9091
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:5432/stats
       SPRING_DATASOURCE_USERNAME: stats
@@ -56,7 +56,7 @@ services:
       context: ./ewm-service
     container_name: ewm-service
     ports:
-      - "8080:8080" #8081
+      - "8081:8080" #8081
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://ewm-db:5432/ewm
       SPRING_DATASOURCE_USERNAME: ewm
