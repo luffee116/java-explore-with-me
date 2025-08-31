@@ -15,6 +15,7 @@ import ru.practicum.entity.request.RequestStatus;
 import ru.practicum.exceptions.BadRequestException;
 import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.mappers.EventMapper;
+import ru.practicum.repository.CommentRepository;
 import ru.practicum.repository.EventRepository;
 import ru.practicum.repository.ParticipationRequestRepository;
 import ru.practicum.service.statsClient.EventStatsClient;
@@ -31,6 +32,7 @@ public class EventPublicServiceImpl implements EventPublicService {
     private final EventRepository eventRepository;
     private final EventStatsClient statsClient;
     private final ParticipationRequestRepository requestRepository;
+    private final CommentRepository commentRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -73,13 +75,16 @@ public class EventPublicServiceImpl implements EventPublicService {
                 events.stream().map(Event::getId).collect(Collectors.toList())
         );
 
+        Map<Long, Long> comments = getCommentsCount(events);
+
         Map<Long, Long> confirmedRequests = getConfirmedRequestsCount(events);
 
         List<EventShortDto> eventShortDtos = events.stream()
                 .map(event -> EventMapper.toEventShortDto(
                         event,
                         views.getOrDefault(event.getId(), 0L),
-                        confirmedRequests.getOrDefault(event.getId(), 0L)))
+                        confirmedRequests.getOrDefault(event.getId(), 0L),
+                        comments.getOrDefault(event.getId(), 0L)))
                 .collect(Collectors.toList());
 
         // Если сортировка по просмотрам, сортируем здесь
@@ -106,15 +111,21 @@ public class EventPublicServiceImpl implements EventPublicService {
         }
 
         // Получаем статистику
+        Long comments = commentRepository.findCommentCountByEventIdAndModerated(id, true);
         Long confirmedRequests = requestRepository.countRequestsByEventAndStatus(id, RequestStatus.CONFIRMED);
         Long views = statsClient.getEventsViews(List.of(id)).getOrDefault(id, 0L);
 
-        return EventMapper.toEventFullDto(event, views, confirmedRequests);
+        return EventMapper.toEventFullDto(event, views, confirmedRequests, comments);
     }
 
     private Map<Long, Long> getConfirmedRequestsCount(List<Event> events) {
         List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
         return requestRepository.countConfirmedRequestsByEventIds(eventIds, RequestStatus.CONFIRMED);
+    }
+
+    private Map<Long, Long> getCommentsCount(List<Event> events) {
+        List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
+        return commentRepository.countCommentsByModeratedAndEventId(eventIds, true);
     }
 
     private PageRequest switchPageRequest(String sort, int from, int size) {

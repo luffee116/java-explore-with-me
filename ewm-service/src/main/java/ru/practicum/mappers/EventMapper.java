@@ -56,10 +56,10 @@ public class EventMapper {
     }
 
     public static EventFullDto toEventFullDto(Event event) {
-        return toEventFullDto(event, event.getViews(), event.getConfirmedRequests());
+        return toEventFullDto(event, event.getViews(), event.getConfirmedRequests(), event.getComments());
     }
 
-    public static EventFullDto toEventFullDto(Event event, Long views, Long confirmedRequests) {
+    public static EventFullDto toEventFullDto(Event event, Long views, Long confirmedRequests, Long comments) {
         return EventFullDto.builder()
                 .id(event.getId())
                 .title(event.getTitle())
@@ -77,14 +77,15 @@ public class EventMapper {
                 .state(event.getState())
                 .views(views != null ? views : 0L)
                 .confirmedRequests(confirmedRequests != null ? confirmedRequests : 0L)
+                .comments(comments != null ? comments : 0L)
                 .build();
     }
 
     public static EventShortDto toEventShortDto(Event event) {
-        return toEventShortDto(event, event.getViews(), event.getConfirmedRequests());
+        return toEventShortDto(event, event.getViews(), event.getConfirmedRequests(), event.getComments());
     }
 
-    public static EventShortDto toEventShortDto(Event event, Long views, Long confirmedRequests) {
+    public static EventShortDto toEventShortDto(Event event, Long views, Long confirmedRequests, Long comments) {
         return EventShortDto.builder()
                 .id(event.getId())
                 .title(event.getTitle())
@@ -95,6 +96,7 @@ public class EventMapper {
                 .paid(event.getPaid())
                 .views(views != null ? views : 0L)
                 .confirmedRequests(confirmedRequests != null ? confirmedRequests : 0L)
+                .comments(comments != null ? comments : 0L)
                 .build();
     }
 
